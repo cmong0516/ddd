@@ -8,7 +8,6 @@ package com.example.ddd.order.domain;
 // 엔티티를 구현한 캘르스는 식별자를 이용해서 equals() , hashCoce() 를 재정의 할수 있다.
 
 import java.util.List;
-import org.apache.ibatis.ognl.enhance.OrderedReturn;
 
 // 엔티티의 식별자를 생성하는 시점.
 // 엔티티의 식별자를 생성하는 시점은 도메인의 특징과 사용하는 기술에 따라 달라진다.
@@ -20,6 +19,8 @@ public class Order {
 
     private OrderNo id;
     private Orderer orderer;
+    // 관계형 데이터 베이스 (RDBMS)에서는 밸류 타입을 제대로 표현하기가 힘들다.
+    // Orderer 을 저장하려면 개별 데이터를 저장하거나 별도의 테이블로 분리해야한다.
     private List<OrderLine> orderLines;
     private ShippingInfo shippingInfo;
     private Money totalAmounts;

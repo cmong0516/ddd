@@ -12,4 +12,5 @@ public class OrderLine {
     private Money price;
     private int quantity;
     private Money amounts;
+
 }
