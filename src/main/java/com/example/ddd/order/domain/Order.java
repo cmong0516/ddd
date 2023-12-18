@@ -7,6 +7,14 @@ package com.example.ddd.order.domain;
 // 엔티티의 식별자는 내부 속성이 바뀌더라도 유지되고 엔티티 생성시 함께 생성 , 삭제시 함께 삭제된다.
 // 엔티티를 구현한 캘르스는 식별자를 이용해서 equals() , hashCoce() 를 재정의 할수 있다.
 
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.Table;
 import java.util.List;
 
 // 엔티티의 식별자를 생성하는 시점.
@@ -15,12 +23,25 @@ import java.util.List;
 // 2. UUID , NanoId 와 같은 고유 식별자 생성기 사용
 // 3. 값을 직접 입력 (아이디 또는 이메일)
 // 4. 일련번호 사용(DB가 제공하는 AI 를 사용한다. 이 방법은 DB에 데이터를 삽입해야 값을 알수 있기 때문에 테이블에 데이터를 추가하기 전에는 식별자를 알수 없다.)
+
+@Entity
+@Table(name = "purchase_order")
 public class Order {
 
-    private OrderNo id;
+    @EmbeddedId
+    // 밸류 타입을 엔티티의 식별자로 사용하려면 @Id 대신 @EmbeddedId를 사용한다.
+    private OrderNo number;
     private Orderer orderer;
     // 관계형 데이터 베이스 (RDBMS)에서는 밸류 타입을 제대로 표현하기가 힘들다.
     // Orderer 을 저장하려면 개별 데이터를 저장하거나 별도의 테이블로 분리해야한다.
+    @ElementCollection(fetch = FetchType.EAGER)
+    // 엔티티의 일부로 저장 되어야 하는 기본 객체의 컬렉션을 지정하는데 사용된다.
+    @CollectionTable(name = "order_line", joinColumns = @JoinColumn(name = "order_number"))
+    // 엔티티 클래스의 특정 컬렉션을 데이터베이스에 매핑할때 사용되며 구체적으로 컬렉션을 저장할 테이블과 테이블의 관계를 정의한다.
+    // order_line 은 컬렉션을 저장할 테이블의 이름.
+    @OrderColumn(name = "line_idx")
+    // 리스트나 배열 과 같은 순서가 있는 컬렉션의 순서를 유지하기 위한 컬럼을 정의할때 사용된다.
+    // line_idx 는 순서 정보를 저장할 칼럼의 이름 이며 이 컬럼은 컬렉션 내 요소의 순서를 나타내며 각 요소가 컬렉션에 추가도니 순서대로 값을 갖는다.
     private List<OrderLine> orderLines;
     private ShippingInfo shippingInfo;
     private Money totalAmounts;

@@ -1,5 +1,10 @@
 package com.example.ddd.order.domain;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
+
+@Embeddable
 public class OrderLine {
 //    private Product product;
 //    private int price;
@@ -8,9 +13,13 @@ public class OrderLine {
 
     // Money 를 사용하게 변경
 
-    private Product product;
+    @Embedded
+    private ProductId productId;
+    @Column(name = "price")
     private Money price;
+    @Column(name = "quantity")
     private int quantity;
+    @Column(name = "amounts")
     private Money amounts;
 
 }

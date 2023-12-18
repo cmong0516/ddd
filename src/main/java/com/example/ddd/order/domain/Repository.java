@@ -3,6 +3,7 @@ package com.example.ddd.order.domain;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
+import jakarta.persistence.Converter;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -46,7 +47,7 @@ public interface Repository Repository {
 
 
     @Entity
-    public class Order{
+    public class Order {
         @Embedded
         private Orderer orderer;
 
@@ -56,10 +57,47 @@ public interface Repository Repository {
 
     // 밸류타입은 모두 @Embedded.
 
-
     // JPA 에서 @Entity 와 @Embeddable 로 클래스를 매핑하려면 기본 생성자를 제공해야 한다.
     // @Embeddable 이 붙은 밸류타입 객체의 기본 생성자를 추가해준다.
     // 이 기본 생서자는 JPA 프로바이더가 객체를 생성할때만 사용되므로 protected 로 선언하여 다른 객체에서 접근하지 못하게 한다.
 
+    //int , long , String , LocalDate 와 같은 타입은 DB 테이블의 한개의 칼럼에 매핑된다.
+    // 이와 비슷하게 밸류 타입의 프로퍼티를 한개의 칼럼에 매핑해야 할 때도 있다.
+    // 두개 이상의 프로퍼티를 가진 밸류 타입을 한 개 칼럼에 매핑하려면 @Embeddable 에너테이션으로 처리할수 없다.
+    // @Embeddable 을 사용하면 테이블을 새로 만들어서 처리하기 때문.
+    // 이때 사용할수 있는 것이 AttributeConverter 이다.
 
+    public interface AttributeConverter<X, Y> {
+        public Y convertToDatabaseColumn(X attribute);
+
+        public X convertToEntityAttribute(Y dbData);
+    }
+
+    // 타입 파라미터 X 는 밸류타입 이고 Y 는 DB타입이다.
+
+    // Money 타입을 사용한 예시
+
+    @Converter(autoApply = true)
+    public class MoneyConverter implements AttributeConverter<Money, Integer> {
+
+        @Override
+        public Integer convertToDatabaseColumn(Money money) {
+            return money == null ? null : money.getValue();
+        }
+
+        @Override
+        public Money convertToEntityAttribute(Integer value) {
+            return value == null ? null : new Money(value);
+        }
+    }
+
+    // AttributeConverter 인터페이스를 구현한 클래스는 @Converter 어노테이션을 적용한다.
+    // autoApply 가 true 면 모델에 출현하는 모든 Money 타입의 프로퍼티에 대해 MoneyConverter를 자동 적용.
+    // autoApply 가 false 면 프로퍼티 값을 변환할 때 사용할 컨버터를 직접 지정해야 한다.
+    // ex)
+    // @Convert(converter = MoneyConverter.class)
+    // private Money totalAmounts;
+
+    // Order Entity 는 한개 이상의 OrderLine 을 가질수 있다.
+    // OrderLine 의 순서가 있다면 List.
 }
