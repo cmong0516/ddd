@@ -38,4 +38,5 @@ public class Article {
 
     // @SecondaryTable 의 name 속성은 밸류를 저장할 테이블을 지정한다.
     // pkJoinColumns 속성은 밸류 테이블에서 엔티티 테이블로 조인할때 사용할 칼럼을 지정.
+
 }
