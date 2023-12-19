@@ -16,4 +16,5 @@ public class OrderSummarySpecs {
         return (Root<OrderSummary> root, CriteriaQuery<?> query, CriteriaBuilder cb) ->
                 cb.between(root.get(OrderSummary_.orderDate), from, to);
     }
+
 }
