@@ -3,6 +3,7 @@ package com.example.ddd.order.domain;
 import java.util.List;
 import org.hibernate.mapping.SortableValue;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 public interface OrderSummaryDao extends Repository<OrderSummary, String> {
     List<OrderSummary> findAll(Specification<OrderSummary> spec);
@@ -29,4 +30,8 @@ public interface OrderSummaryDao extends Repository<OrderSummary, String> {
     List<OrderSummary> findAllBy(Specification<OrderSummary> spec, Sort sort);
 
     // Spring Data Jpa 는 파라미터로 전달받은 Sort 를 사용해서 알맞게 정렬 쿼리를 생성한다.
+
+    // JPQL 로 쿼리문을 작성해서 OrderView DTO로 값을 꺼내온다.
+    // QueryDsl 의 @QueryProjection 을 사용해서 DTO 로 가져오는 것과 같은 기능을 하는것 같다.
+    // 조회 전용 DTO 를 만드는 것은 표현 영역을 통해 사용자에게 데이터를 보여주기 위함.
 }
