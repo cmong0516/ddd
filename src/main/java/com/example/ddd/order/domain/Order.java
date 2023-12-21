@@ -196,4 +196,33 @@ public class Order {
     // 책의 저자는 이런 대규모 변경은 자주 일어나지 않는데 과한 대비를 할 이유는 없다고 생각한다고 한다.
 
 
-}
+    // 7.1 여러 애기르거트가 필요한 기능
+    // 결제 금액 계산 로직을 보면
+    // 상품 애그리거트 : 구매하는 상품의 가격이 필요하며 상품에 따라 배송비가 추가되기도함.
+    // 주문 애그리거트 : 상품별로 구매 개수가 필요하다.
+    // 할인 쿠폰 애그리거트 : 쿠폰별로 지정한 할인 금액이나 비율에 따라 총 금액을 할인한다.
+    // 회원 애그리거트 : 회원 등급에 따른 할인
+
+    // 이렇게 여러 애그리거트의 기능을 사용해야 한다.
+    // 이때 어떤 애그리거트를 주체로 이 기능을 수행할 것인가 ??
+    // 주문 애그리거트가 필요한 데이터를 모두 가져와 할인 금액 계산 책임을 주문 애그리거트에 할당할수 있다.
+
+    private List<Coupon> usedCoupons;
+
+    private Money calculatePayAmounts() {
+        Money totalAmounts = calculateTotalAmounts();
+        Money discount = coupons.steam()
+                .map(coupon -> calculateDiscount(coupon))
+                .reduce(Money(0), (v1, v2) -> v1.add(v2));
+
+        Money membershipDiscount = calculateDiscount(orderer.getMember().getGrade());
+
+        return totalAmounts.minus(discount).minus(membershipDiscount);
+    }
+
+    // 여기서 결제 금액 계산 로직이 주문 애그리거트의 책임이 맞을까 ??
+    // 크리스마스 세일로 2% 의 추가 할인이 적용된다고 하면 이 할인 정책은 주문 애그리거트와 관계가 없지만 주문 애그리거트에서 결제 할인 로직을 수행하기에 주문 애그리거트를 수정해야 한다.
+    // 이 문제를 해결하기 위해 도메인 기능을 별도 서비스로 구현한다.
+    // 도메인 서비스를 사용하는 상황
+    // 1. 계산 로직 : 여러 애그리거트가 필요한 계산 로직이나 한 애그리거트에 넣기에는 복잡한 로직
+    // 2. 외부 시스템 연동이 필요한 도메인 로직 : 구현하기 위해 타 시스템을 사용해야 하는 도메인 로직
