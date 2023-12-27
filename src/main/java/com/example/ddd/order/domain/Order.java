@@ -116,6 +116,8 @@ public class Order {
     public void cancel() {
         verifyNotYetShipped();
         this.orderState = OrderState.CANCELED;
+
+        Events.raise(new OrderCanceledEvent(number.getNumber()));
     }
 
     private void verifyNotYetShipped() {
